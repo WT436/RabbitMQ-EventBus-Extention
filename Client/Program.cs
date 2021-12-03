@@ -12,7 +12,6 @@ namespace Client
     {
 
         private static IConnection _rabbitMQConnection;
-        private static IModel _exchange;
         static void Main(string[] args)
         {
 
@@ -36,10 +35,6 @@ namespace Client
                 var replayQueue = $"MyQueue_return";
                 var correlationId = Guid.NewGuid().ToString();
 
-                exchange.ExchangeDeclare(exchange: "Send",
-                                         type: ExchangeType.Direct,
-                                         durable: true,
-                                         autoDelete: false);
                 // Create Queue
                 exchange.QueueDeclare(queue: replayQueue,
                                      durable: true,
@@ -59,15 +54,7 @@ namespace Client
                     {
                         var body = ea.Body.ToArray();
                         var message = Encoding.UTF8.GetString(body);
-                        if(Int32.TryParse(message.Replace("\"",""), out int output))
-                        {
-                            Console.WriteLine($"Received Number Data : {output}");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Received {message}");
-                        }
-                        
+                        Console.WriteLine($"Server trả lời :  {message}");
                         return;
                     }
                 };
@@ -81,12 +68,13 @@ namespace Client
 
                 while (true)
                 {
+                    Console.Write("Nhap ky tu: ");
                     var myMessage = Console.ReadLine();
-                    pros.DeliveryMode = 2;
-                    exchange.BasicPublish(exchange: "Send",
-                                          routingKey: "QueueKey",
+                    exchange.BasicPublish(exchange: "",
+                                          routingKey: "MyQueue",
                                           basicProperties: pros,
                                           body: Encoding.UTF8.GetBytes(myMessage));
+                    Console.WriteLine($"Gửi lên server : {myMessage}\n\n");
                     Console.ReadKey();
                     Console.Clear();
                 }
@@ -95,6 +83,5 @@ namespace Client
             Console.WriteLine("End-Game!");
             Console.ReadKey();
         }
-        private static int fib(int n) => n == 0 || n == 1 ? n : fib(n - 1) + fib(n - 2);
     }
 }

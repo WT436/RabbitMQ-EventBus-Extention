@@ -2,6 +2,7 @@
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace Server
             connectionFactory.AutomaticRecoveryEnabled = true;
             connectionFactory.DispatchConsumersAsync = true;
 
-            var _rabbitMQConnection = connectionFactory.CreateConnection("ConnectionApp");
+            using (var _rabbitMQConnection = connectionFactory.CreateConnection("ConnectionApp"))
             using (var channel = _rabbitMQConnection.CreateModel())
             {
                 var consumer = InitializerConsumer(channel, "MyQueue");
@@ -36,20 +37,20 @@ namespace Server
                     try
                     {
                         var incommingMessage = Encoding.UTF8.GetString(ea.Body.ToArray());
-                        Console.WriteLine($"{DateTime.Now:o} Incomming => {incommingMessage}");
-                        var replyMessage = JsonSerializer.Serialize(incommingMessage);                      
+                        Console.WriteLine($"{DateTime.Now:o} Nhận được : {incommingMessage}");
+                        var replyMessage = JsonSerializer.Serialize(incommingMessage);
                         if (Int32.TryParse(replyMessage.Replace("\"", ""), out int output))
                         {
                             output = fib(output);
-                            Console.WriteLine($"{DateTime.Now:o} Reply => {output}");
+                            Console.WriteLine($"Trả lời int : {output}");
                             SendReplyMessage(output.ToString(), channel, ea);
                         }
                         else
                         {
-                            Console.WriteLine($"{DateTime.Now:o} Reply => {replyMessage}");
-                            SendReplyMessage(replyMessage, channel, ea);
+                            Console.WriteLine($"Trả lời string : {replyMessage}");
+                            SendReplyMessage("Heloo : " + replyMessage, channel, ea);
                         }
-                        
+
                     }
                     catch
                     {
@@ -58,6 +59,7 @@ namespace Server
 
                 Console.ReadLine();
             }
+
             Console.WriteLine("End-Game!");
             Console.ReadKey();
         }
@@ -69,11 +71,9 @@ namespace Server
             replyProps.CorrelationId = props.CorrelationId;
 
             var responseBytes = Encoding.UTF8.GetBytes(replyMessage);
-
+            channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             channel.BasicPublish(exchange: "", routingKey: props.ReplyTo,
                 basicProperties: replyProps, body: responseBytes);
-
-            channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
         }
 
 
@@ -85,12 +85,13 @@ namespace Server
             channel.BasicQos(0, 1, false);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
+
             channel.BasicConsume(queue: queueName,
                 autoAck: false, consumer: consumer);
 
             return consumer;
         }
 
-        private static int fib(int n) => n == 0 || n == 1 ? n : fib(n - 1) + fib(n - 2);
+        private static int fib(int n) => Enumerable.Range(1, n).Aggregate((t,i)=>t+i);
     }
 }

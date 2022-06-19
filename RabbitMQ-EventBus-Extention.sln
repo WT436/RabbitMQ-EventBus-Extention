@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B1CAE7D7-0B38-4864-9A2B-9DB5EB9B7101}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yaml = docker-compose.yaml
+		Setting.md = Setting.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server_One", "Server_One\Server_One.csproj", "{F1EC02F3-F9F4-44A2-B7D8-8A0B11FCD167}"

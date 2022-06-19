@@ -6,18 +6,18 @@ using System.Web;
 
 namespace RabbitMQ_Extention
 {
-    public class RabbitExchange
+    public class RabbitMQSend
     {
         // thu gọn kết nối
-        public string rabbitmqconnection = $"amqp://{HttpUtility.UrlEncode("WT436Admin")}"
-                                         + $":{ HttpUtility.UrlEncode("WT436Admin")}"
-                                         + $"@{ "localhost"}"
+        public string rabbitmqconnection = $"amqp://{HttpUtility.UrlEncode("WT436")}"
+                                         + $":{ HttpUtility.UrlEncode("WT436")}"
+                                         + $"@{"localhost"}"
                                          + $":{"5672"}"
-                                         + $"/{ HttpUtility.UrlEncode("TranHaiNam")}";
+                                         + $"/{ HttpUtility.UrlEncode("VHTest")}";
 
         private static IConnection _rabbitMQConnection;
 
-        public RabbitExchange()
+        public RabbitMQSend()
         {
             string connectionString = "amqps://myhost?cacertfile=/path/to/ca_certificate.pem"
                                     + "& certfile =/path/to/client_certificate.pem" // chứng chỉ SSL
@@ -32,22 +32,22 @@ namespace RabbitMQ_Extention
 
             var connectionFactory = new ConnectionFactory();
             connectionFactory.Uri = new Uri(rabbitmqconnection);
+            connectionFactory.RequestedConnectionTimeout = TimeSpan.FromMilliseconds(3000);
+            connectionFactory.ContinuationTimeout = TimeSpan.FromMilliseconds(3000);
+            connectionFactory.HandshakeContinuationTimeout = TimeSpan.FromMilliseconds(3000);
+            connectionFactory.SocketReadTimeout = TimeSpan.FromMilliseconds(3000);
+            connectionFactory.SocketWriteTimeout = TimeSpan.FromMilliseconds(3000);
             connectionFactory.AutomaticRecoveryEnabled = true;
             connectionFactory.DispatchConsumersAsync = true;
-            _rabbitMQConnection = connectionFactory.CreateConnection("ConnectionApp");
-        }
-        /// <summary>
-        /// Gửi đến tất cả các Queue có sắn mà không phân biệt.
-        /// </summary>
-        public void FanoutExchange()
-        {
+            _rabbitMQConnection = connectionFactory.CreateConnection("SERVER-SEND-MESSAGE");
+
             while (true)
             {
                 // create Exchange
                 using (var exchange = _rabbitMQConnection.CreateModel())
                 {
                     exchange.ExchangeDeclare(exchange: "Send",
-                                             type: ExchangeType.Fanout,
+                                             type: ExchangeType.Direct,
                                              durable: true,
                                              autoDelete: false);
                     // Create Queue
@@ -59,7 +59,10 @@ namespace RabbitMQ_Extention
                     exchange.QueueBind(queue: "MyQueue",
                                        exchange: "Send",
                                        routingKey: "QueueKey");
+                    exchange.ContinuationTimeout = TimeSpan.FromMilliseconds(3000);
+
                     // Publish Message
+                    Console.WriteLine("Nhap Con Cac : ");
                     var myMessage = Console.ReadLine();
                     var pro = exchange.CreateBasicProperties();
                     pro.DeliveryMode = 2;
@@ -69,20 +72,6 @@ namespace RabbitMQ_Extention
                                           body: Encoding.UTF8.GetBytes(myMessage));
                 }
             }
-        }
-
-        public void DirectExchange()
-        {
-
-        }
-
-        public void TopicExchange()
-        {
-        }
-
-        public void HeadersExchange()
-        {
-
         }
     }
 }

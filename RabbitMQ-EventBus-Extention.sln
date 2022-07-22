@@ -17,13 +17,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Setting.md = Setting.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server_One", "Server_One\Server_One.csproj", "{F1EC02F3-F9F4-44A2-B7D8-8A0B11FCD167}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server_One", "Server_One\Server_One.csproj", "{F1EC02F3-F9F4-44A2-B7D8-8A0B11FCD167}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server_Two", "Server_Two\Server_Two.csproj", "{7B3D96D3-31BF-47D6-82A3-90B5BA0ACBFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server_Two", "Server_Two\Server_Two.csproj", "{7B3D96D3-31BF-47D6-82A3-90B5BA0ACBFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client_One", "Client_One\Client_One.csproj", "{545F36EE-4DA1-4ECE-8D9D-0E11CC3EED64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client_One", "Client_One\Client_One.csproj", "{545F36EE-4DA1-4ECE-8D9D-0E11CC3EED64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client_Two", "Client_Two\Client_Two.csproj", "{B865514D-C1E8-41B9-B7B4-CB4DAADE360F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client_Two", "Client_Two\Client_Two.csproj", "{B865514D-C1E8-41B9-B7B4-CB4DAADE360F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

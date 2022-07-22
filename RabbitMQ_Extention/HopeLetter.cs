@@ -16,28 +16,26 @@ namespace RabbitMQ_Extention
     {
         private readonly ConnectionFactory connectionFactory;
         private static IConnection _rabbitMQConnection;
+        private const int PERFETCH_SIZE_CONFIG = 0;
+        private const int PERFETCH_COUNT_CONFIG = 1;
+        private const bool GLOBAL_CONFIG = false;
 
-        public HopeLetter()
+        public HopeLetter(RabbitMqConfiguration rabbitMqConfiguration)
         {
             try
             {
-                string rabbitmqconnection = $"amqp://{HttpUtility.UrlEncode("WT436")}"
-                                     + $":{ HttpUtility.UrlEncode("WT436")}"
-                                     + $"@{ "localhost"}"
-                                     + $":{"5672"}"
-                                     + $"/{ HttpUtility.UrlEncode("VHTest")}";
+                string rabbitmqconnection = $"amqp://{HttpUtility.UrlEncode(rabbitMqConfiguration.UserName)}:{HttpUtility.UrlEncode(rabbitMqConfiguration.Password)}@{rabbitMqConfiguration.HostName}:{rabbitMqConfiguration.Port}/{HttpUtility.UrlEncode(rabbitMqConfiguration.VirtualHost)}";
 
                 connectionFactory = new ConnectionFactory();
                 connectionFactory.Uri = new Uri(rabbitmqconnection);
-                connectionFactory.AutomaticRecoveryEnabled = true;
-                connectionFactory.DispatchConsumersAsync = true;
-                //connectionFactory.NetworkRecoveryInterval = TimeSpan.FromSeconds(10);
-                _rabbitMQConnection = connectionFactory.CreateConnection("ConnectionApp");
+                connectionFactory.AutomaticRecoveryEnabled = rabbitMqConfiguration.AutomaticRecoveryEnabled;
+                connectionFactory.DispatchConsumersAsync = rabbitMqConfiguration.DispatchConsumersAsync;
+                connectionFactory.NetworkRecoveryInterval = TimeSpan.FromSeconds(10);
+                _rabbitMQConnection = connectionFactory.CreateConnection(rabbitMqConfiguration.ConnectionFactoryName);
             }
             catch (Exception ex)
             {
                 throw ex;
-                // server not connect
             }
         }
 
@@ -77,15 +75,13 @@ namespace RabbitMQ_Extention
 
         private static AsyncEventingBasicConsumer InitializerConsumer(IModel channel, string queueName)
         {
-            channel.QueueDeclare(queue: queueName, durable: true,
-                exclusive: false, autoDelete: false, arguments: null);
+            channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
-            channel.BasicQos(0, 1, false);
+            channel.BasicQos(PERFETCH_SIZE_CONFIG, PERFETCH_COUNT_CONFIG, GLOBAL_CONFIG);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
 
-            channel.BasicConsume(queue: queueName,
-                autoAck: false, consumer: consumer);
+            channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
 
             return consumer;
         }
@@ -96,7 +92,7 @@ namespace RabbitMQ_Extention
             // create Exchange
             using (var exchange = _rabbitMQConnection.CreateModel())
             {
-                var replayQueue = $"{queueName}_return";
+                var replayQueue = $"{queueName}_rep";
                 var correlationId = Guid.NewGuid().ToString();
 
                 // Create Queue

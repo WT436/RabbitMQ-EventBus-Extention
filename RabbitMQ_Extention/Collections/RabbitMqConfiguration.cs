@@ -11,8 +11,8 @@ namespace RabbitMQ_Extention.Collections
         public string VirtualHost { get; set; }
         public string HostName { get; set; }
         public string Port { get; set; }
-
-        public string QueueName { get; set; }
-        public string ExchangeName { get; set; }
+        public bool AutomaticRecoveryEnabled { get; set; } = true;
+        public bool DispatchConsumersAsync { get; set; } = true;
+        public string ConnectionFactoryName { get; set; } = "ConnectionDefault";
     }
 }
